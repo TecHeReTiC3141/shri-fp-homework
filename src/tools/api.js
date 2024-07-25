@@ -45,12 +45,10 @@ export default class Api {
                 if (!this.whiteListHost.some(allowedHost => allowedHost === host)) {
                     reject('Доступны только хосты "api.tech" и "animals.tech"');
                  }
-        
                 switch(host) {
                     case 'api.tech':
                         if (pathname === '/numbers/base') {
                                 const {from, to, number} = params;
-
                                 if (!from || !to || !number) {
                                     reject('Не указаны все необходимые параметры from, to, number');
                                 }
@@ -67,7 +65,6 @@ export default class Api {
                         if (Number.isNaN(animalId)) {
                             reject('Не получается распарсить id животного');
                         }
-
                         resolve(this.animalController(animalId));
                         break;
                     default:

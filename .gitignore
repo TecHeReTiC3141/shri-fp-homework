@@ -22,3 +22,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 package-lock.json
+/.idea/.gitignore
+/.idea/2024-shri-fp-homework.iml
+/.idea/dbnavigator.xml
+/.idea/modules.xml
+/.idea/vcs.xml

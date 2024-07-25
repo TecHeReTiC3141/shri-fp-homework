@@ -14,38 +14,81 @@
  * Иногда промисы от API будут приходить в состояние rejected, (прямо как и API в реальной жизни)
  * Ответ будет приходить в поле {result}
  */
- import Api from '../tools/api';
+import Api from '../tools/api';
+import {
+    __,
+    allPass,
+    andThen,
+    compose,
+    gt,
+    ifElse,
+    length,
+    lt,
+    modulo,
+    not,
+    partialRight,
+    pipe,
+    pipeWith,
+    prop,
+    tap,
+    tryCatch,
+} from "ramda";
 
- const api = new Api();
+const api = new Api();
 
- /**
-  * Я – пример, удали меня
-  */
- const wait = time => new Promise(resolve => {
-     setTimeout(resolve, time);
- })
+const squareUp = partialRight(Math.pow,[2]);
+const moduloBy3 = modulo(__, 3);
 
- const processSequence = ({value, writeLog, handleSuccess, handleError}) => {
-     /**
-      * Я – пример, удали меня
-      */
-     writeLog(value);
+const getResult = prop("result");
 
-     api.get('https://api.tech/numbers/base', {from: 2, to: 10, number: '01011010101'}).then(({result}) => {
-         writeLog(result);
-     });
+const isLengthLessThan = compose(lt(__, 10), length);
+const isLengthGreaterThan = compose(gt(__, 2), length);
+const isPositive = compose(gt(__, 0), Number);
+const isNumber = compose(not, Number.isNaN);
+const validateNumber = allPass([ isLengthLessThan, isLengthGreaterThan, isPositive, isNumber ]);
 
-     wait(2500).then(() => {
-         writeLog('SecondLog')
+const toClosestInt = compose(Math.round, Number);
 
-         return wait(1500);
-     }).then(() => {
-         writeLog('ThirdLog');
+const apiGetToBase = api.get('https://api.tech/numbers/base');
+const getBinaryPromise = value => apiGetToBase({ from: 10, to: 2, number: value.toString() });
+const getBinary = pipeWith(andThen, [ getBinaryPromise, getResult ]);
+const apiGetAnimalNamePromise = id => api.get(`https://animals.tech/${id}`, {});
 
-         return wait(400);
-     }).then(() => {
-         handleSuccess('Done');
-     });
- }
+const getAnimalName = pipeWith(andThen, [ apiGetAnimalNamePromise, getResult ]);
+
+const asyncCompose = handleError => (f, res) => Promise.resolve(res).then(f).catch(handleError);
+
+const processSequence = ({ value, writeLog, handleSuccess, handleError }) => {
+
+    const tapWriteLog = tap(writeLog);
+
+    const validationPipeline = pipe(tapWriteLog, validateNumber);
+
+    const pipeline = pipeWith(asyncCompose(handleError), [
+        toClosestInt,
+        tapWriteLog,
+        getBinary,
+        tapWriteLog,
+        length,
+        tapWriteLog,
+        squareUp,
+        tapWriteLog,
+        moduloBy3,
+        tapWriteLog,
+        getAnimalName,
+        handleSuccess,
+    ]);
+
+    const safePipeline = tryCatch(pipeline, handleError);
+    const handleValidationError = () => handleError('ValidationError');
+
+    const sequence = ifElse(
+        validationPipeline,
+        safePipeline,
+        handleValidationError,
+    );
+
+    sequence(value);
+}
 
 export default processSequence;
