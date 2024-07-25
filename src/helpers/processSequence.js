@@ -49,8 +49,8 @@ const validateNumber = allPass([ isLengthLessThan, isLengthGreaterThan, isPositi
 
 const toClosestInt = compose(Math.round, Number);
 
-const apiGetToBase = api.get('https://api.tech/numbers/base');
-const getBinaryPromise = value => apiGetToBase({ from: 10, to: 2, number: value.toString() });
+const apiGetNumberToBase = api.get('https://api.tech/numbers/base');
+const getBinaryPromise = value => apiGetNumberToBase({ from: 10, to: 2, number: value.toString() });
 const getBinary = pipeWith(andThen, [ getBinaryPromise, getResult ]);
 const apiGetAnimalNamePromise = id => api.get(`https://animals.tech/${id}`, {});
 

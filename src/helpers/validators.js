@@ -118,9 +118,9 @@ export const validateFieldN4 = allPass([ isCircleBlue, isStarRed, isSquareOrange
 
 // 5. Три фигуры одного любого цвета кроме белого (четыре фигуры одного цвета – это тоже true).
 export const validateFieldN5 = (shapes) => {
-    const isThreeShapesSameColor = compose(lte(3), reduce(max, 0), getColorsCounts);
-    const isWhiteColorGreater = compose(gt(3), sumIsWhite);
-    return allPass([ isThreeShapesSameColor, isWhiteColorGreater ])(shapes);
+    const isAtLeastThreeShapesSameColor = compose(lte(3), reduce(max, 0), getColorsCounts);
+    const isWhiteColorLessThan3 = compose(gt(3), sumIsWhite);
+    return allPass([ isAtLeastThreeShapesSameColor, isWhiteColorLessThan3 ])(shapes);
 };
 
 // 6. Ровно две зеленые фигуры (одна из зелёных – это треугольник), плюс одна красная. Четвёртая оставшаяся любого доступного цвета,
